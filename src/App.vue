@@ -1,5 +1,14 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { RouterLink, RouterView } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
+const { user } = storeToRefs(auth)
+
+function logout() {
+  auth.logout()
+}
 </script>
 
 <template>
@@ -9,6 +18,14 @@ import { RouterLink, RouterView } from 'vue-router'
       <nav class="nav">
         <RouterLink to="/">Колоды</RouterLink>
         <RouterLink to="/settings">Настройки</RouterLink>
+        <template v-if="user">
+          <span class="user-email" :title="user.email">{{ user.email }}</span>
+          <button type="button" class="linkish" @click="logout">Выйти</button>
+        </template>
+        <template v-else>
+          <RouterLink :to="{ name: 'login' }">Вход</RouterLink>
+          <RouterLink :to="{ name: 'register' }">Регистрация</RouterLink>
+        </template>
       </nav>
     </header>
     <main class="main">
@@ -43,7 +60,29 @@ import { RouterLink, RouterView } from 'vue-router'
 }
 .nav {
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+.user-email {
+  font-size: 0.85rem;
+  color: var(--text);
+  max-width: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.linkish {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  font: inherit;
+  cursor: pointer;
+}
+.linkish:hover {
+  color: var(--accent-hover);
 }
 .nav a {
   color: var(--text);
