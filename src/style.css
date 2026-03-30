@@ -1,0 +1,200 @@
+:root {
+  /* Китайский флаг: поле Pantone 186 C ≈ #DE2910 */
+  --text: #3d3835;
+  --text-h: #0d0d0d;
+  --bg: #faf6f0;
+  --surface: #fffefb;
+  --surface-2: #f3ede4;
+  --border: #e0d5c8;
+  --accent: #de2910;
+  --accent-hover: #b8120c;
+  --gold: #b8860b;
+  --gold-muted: #9a7b2c;
+  --danger: #991b1b;
+  --success: #166534;
+  --canvas-bg: #faf6f0;
+  --canvas-stroke: #14110e;
+
+  --sans: 'Days One', system-ui, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+  --font-hanzi: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  font: 16px/1.5 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #b8b0a5;
+    --text-h: #f7f2e8;
+    --bg: #0a0a0a;
+    --surface: #12100e;
+    --surface-2: #1c1916;
+    --border: #2e2923;
+    --accent: #e63b2e;
+    --accent-hover: #ff5c4d;
+    --gold: #d4af37;
+    --gold-muted: #a68b2d;
+    --danger: #fca5a5;
+    --success: #4ade80;
+    --canvas-bg: #12100e;
+    --canvas-stroke: #e8dfd0;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0 0 0.75rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.15rem;
+}
+
+#app {
+  min-height: 100svh;
+}
+
+a {
+  color: var(--accent);
+}
+
+button,
+.btn {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-h);
+}
+
+button.primary,
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+button.primary:hover,
+.btn.primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+button.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: transparent;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input,
+textarea {
+  font: inherit;
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text-h);
+}
+
+textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.875rem;
+  margin-bottom: 0.35rem;
+  color: var(--text-h);
+}
+
+.hanzi-input {
+  font-family: var(--font-hanzi), var(--sans);
+  font-size: 1.5rem;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list li {
+  border-bottom: 1px solid var(--border);
+}
+
+.list a {
+  display: block;
+  padding: 0.85rem 0;
+  text-decoration: none;
+  color: var(--text-h);
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  max-width: 100%;
+  width: 22rem;
+  border: 1px solid var(--border);
+  max-height: 90svh;
+  overflow: auto;
+}
+
+.modal h3 {
+  margin-top: 0;
+}
+
+.empty {
+  color: var(--text);
+  font-size: 0.95rem;
+  padding: 1rem 0;
+}
