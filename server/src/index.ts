@@ -16,33 +16,31 @@ const app = Fastify({ logger: true });
 
 app.get("/health", async () => ({ ok: true as const }));
 
-await app.register(async (fastify) => {
-  const corsOrigins = env.CORS_ORIGIN.split(",").map((s) => s.trim()).filter(Boolean);
-  await fastify.register(cors, {
-    origin: corsOrigins.length ? corsOrigins : true,
-  });
-
-  await fastify.register(jwt, {
-    secret: env.JWT_SECRET,
-    sign: { expiresIn: env.JWT_EXPIRES_IN },
-  });
-
-  fastify.decorate(
-    "authenticate",
-    async function authenticate(request, reply) {
-      try {
-        await request.jwtVerify();
-      } catch {
-        return reply.status(401).send({ error: "Unauthorized" });
-      }
-    },
-  );
-
-  await fastify.register(authRoutes, { db, prefix: "/auth" });
-  await fastify.register(cardRoutes, { db, prefix: "/decks" });
-  await fastify.register(deckRoutes, { db, prefix: "/decks" });
-  await fastify.register(studyRoutes, { db, prefix: "/study" });
+const corsOrigins = env.CORS_ORIGIN.split(",").map((s) => s.trim()).filter(Boolean);
+await app.register(cors, {
+  origin: corsOrigins.length ? corsOrigins : true,
 });
+
+await app.register(jwt, {
+  secret: env.JWT_SECRET,
+  sign: { expiresIn: env.JWT_EXPIRES_IN },
+});
+
+app.decorate(
+  "authenticate",
+  async function authenticate(request, reply) {
+    try {
+      await request.jwtVerify();
+    } catch {
+      return reply.status(401).send({ error: "Unauthorized" });
+    }
+  },
+);
+
+await app.register(authRoutes, { db, prefix: "/auth" });
+await app.register(cardRoutes, { db, prefix: "/decks" });
+await app.register(deckRoutes, { db, prefix: "/decks" });
+await app.register(studyRoutes, { db, prefix: "/study" });
 
 const shutdown = async () => {
   await pool.end();

@@ -60,7 +60,7 @@ isProject: false
 - `**cards`**: `id`, `deck_id`, `hanzi`, `pinyin`, `meaning`, `example`, `notes` (nullable), `created_at`.
 - `**card_progress`** (одна строка на пару пользователь–карточка):  
   - `user_id`, `card_id` (unique вместе)  
-  - `**status**`: `not_started` | `learning` | `learned` (маппинг на «Не изучено» / «В процессе» / «Изучено»)  
+  - `**status`**: `not_started` | `learning` | `learned` (маппинг на «Не изучено» / «В процессе» / «Изучено»)  
   - `**step**`: номер успешного этапа 0…11 (0 = ещё не было «Знаю» или только добавлена; после 11-го «Знаю» → learned)  
   - `**first_shown_at**`: время **первого** показа карточки в квизе (для якоря шагов 7–11)  
   - `**next_due_at`**: когда карточку снова показывать  

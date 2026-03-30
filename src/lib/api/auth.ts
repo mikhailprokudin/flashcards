@@ -1,8 +1,11 @@
-import { getApiBase } from '@/lib/apiBase'
+import { apiRequest } from '@/lib/api/client'
+
+export { ApiError } from '@/lib/api/client'
 
 export interface AuthUser {
   id: number
   email: string
+  requireHandwritingInStudy: boolean
 }
 
 export interface AuthResponse {
@@ -10,75 +13,33 @@ export interface AuthResponse {
   user: AuthUser
 }
 
-interface ErrorBody {
-  error?: string
-}
-
-async function parseJson(res: Response): Promise<unknown> {
-  const text = await res.text()
-  if (!text) return null
-  try {
-    return JSON.parse(text) as unknown
-  } catch {
-    return { error: text }
-  }
-}
-
-export class ApiError extends Error {
-  readonly status: number
-  readonly body: unknown
-
-  constructor(message: string, status: number, body: unknown) {
-    super(message)
-    this.name = 'ApiError'
-    this.status = status
-    this.body = body
-  }
-}
-
-async function request<T>(
-  path: string,
-  init: RequestInit & { token?: string | null },
-): Promise<T> {
-  const { token, headers: initHeaders, ...rest } = init
-  const headers = new Headers(initHeaders)
-  if (!headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json')
-  }
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`)
-  }
-
-  const res = await fetch(`${getApiBase()}${path}`, { ...rest, headers })
-  const body = await parseJson(res)
-
-  if (!res.ok) {
-    const msg =
-      typeof body === 'object' && body !== null && 'error' in body
-        ? String((body as ErrorBody).error ?? `HTTP ${res.status}`)
-        : `HTTP ${res.status}`
-    throw new ApiError(msg, res.status, body)
-  }
-
-  return body as T
-}
-
 export const authApi = {
   register(body: { email: string; password: string }): Promise<AuthResponse> {
-    return request<AuthResponse>('/auth/register', {
+    return apiRequest<AuthResponse>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(body),
     })
   },
 
   login(body: { email: string; password: string }): Promise<AuthResponse> {
-    return request<AuthResponse>('/auth/login', {
+    return apiRequest<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(body),
     })
   },
 
   me(token: string): Promise<AuthUser> {
-    return request<AuthUser>('/auth/me', { method: 'GET', token })
+    return apiRequest<AuthUser>('/auth/me', { method: 'GET', token })
+  },
+
+  patchMe(
+    token: string,
+    body: { requireHandwritingInStudy: boolean },
+  ): Promise<AuthUser> {
+    return apiRequest<AuthUser>('/auth/me', {
+      method: 'PATCH',
+      token,
+      body: JSON.stringify(body),
+    })
   },
 }

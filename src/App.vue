@@ -1,36 +1,22 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { RouterLink, RouterView } from 'vue-router'
+import AppTabBar from '@/components/AppTabBar.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const { user } = storeToRefs(auth)
-
-function logout() {
-  auth.logout()
-}
 </script>
 
 <template>
   <div class="app-shell">
     <header class="top-bar">
       <RouterLink to="/" class="logo">汉字卡</RouterLink>
-      <nav class="nav">
-        <RouterLink to="/">Колоды</RouterLink>
-        <RouterLink to="/settings">Настройки</RouterLink>
-        <template v-if="user">
-          <span class="user-email" :title="user.email">{{ user.email }}</span>
-          <button type="button" class="linkish" @click="logout">Выйти</button>
-        </template>
-        <template v-else>
-          <RouterLink :to="{ name: 'login' }">Вход</RouterLink>
-          <RouterLink :to="{ name: 'register' }">Регистрация</RouterLink>
-        </template>
-      </nav>
     </header>
-    <main class="main">
+    <main class="main" :class="{ 'with-tab-bar': user }">
       <RouterView />
     </main>
+    <AppTabBar v-if="user" />
   </div>
 </template>
 
@@ -41,9 +27,11 @@ function logout() {
   flex-direction: column;
 }
 .top-bar {
+  position: relative;
+  z-index: 30;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
   box-shadow: 0 1px 0 0 color-mix(in srgb, var(--gold) 35%, transparent);
@@ -51,57 +39,22 @@ function logout() {
 }
 .logo {
   font-family: var(--font-hanzi), var(--sans);
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 600;
   color: var(--text-h);
   text-decoration: none;
   padding-left: 0.6rem;
   border-left: 3px solid var(--gold);
 }
-.nav {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1rem;
-}
-.user-email {
-  font-size: 0.85rem;
-  color: var(--text);
-  max-width: 10rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.linkish {
-  background: transparent;
-  border: none;
-  padding: 0;
-  color: var(--accent);
-  text-decoration: underline;
-  font: inherit;
-  cursor: pointer;
-}
-.linkish:hover {
-  color: var(--accent-hover);
-}
-.nav a {
-  color: var(--text);
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-.nav a:hover {
-  color: var(--gold-muted);
-}
-.nav a.router-link-active {
-  color: var(--accent);
-  font-weight: 500;
-}
 .main {
   flex: 1;
-  padding: 1rem;
-  max-width: 40rem;
+  padding: 1.1rem;
+  max-width: 42rem;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+}
+.main.with-tab-bar {
+  padding-bottom: calc(4.65rem + env(safe-area-inset-bottom, 0px));
 }
 </style>

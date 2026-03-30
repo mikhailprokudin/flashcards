@@ -1,31 +1,84 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useSettingsStore } from '@/stores/settings'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useDecksStore } from '@/stores/decks'
 
-const settings = useSettingsStore()
-const { requireHandwritingInStudy } = storeToRefs(settings)
+const router = useRouter()
+const auth = useAuthStore()
+const decks = useDecksStore()
+const { user, preferenceSaving } = storeToRefs(auth)
+
+function onToggle(e: Event) {
+  const el = e.target as HTMLInputElement
+  void auth.setRequireHandwritingInStudy(el.checked)
+}
+
+function logout() {
+  decks.reset()
+  auth.logout()
+  void router.replace({ name: 'login' })
+}
 </script>
 
 <template>
   <div>
     <h1>Настройки</h1>
 
+    <section v-if="user" class="account">
+      <h2 class="account-title">Аккаунт</h2>
+      <p class="user-email" :title="user.email">{{ user.email }}</p>
+      <button type="button" class="logout-btn btn btn-icon" title="Выйти" aria-label="Выйти из аккаунта" @click="logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 17H6a2 2 0 01-2-2V9a2 2 0 012-2h4M14 21l7-7-7-7M21 12H9" />
+        </svg>
+      </button>
+    </section>
+
     <label class="toggle">
       <input
         type="checkbox"
-        :checked="requireHandwritingInStudy"
-        @change="settings.setRequireHandwriting(($event.target as HTMLInputElement).checked)"
+        :checked="user?.requireHandwritingInStudy ?? false"
+        :disabled="preferenceSaving || !user"
+        @change="onToggle"
       />
       <span>Требовать рукописный ввод (笔顺) при повторении</span>
     </label>
     <p class="note">
-      После переворота карточки нужно правильно написать каждый иероглиф слова по чертам. Данные черт
-      подгружаются из сети (CDN), если локальных файлов нет.
+      После переворота карточки нужно правильно написать каждый иероглиф слова по чертам. Данные черт подгружаются
+      из сети (CDN), если локальных файлов нет. Параметр сохраняется в вашем профиле на сервере.
     </p>
   </div>
 </template>
 
 <style scoped>
+.account {
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.account-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+.user-email {
+  margin: 0 0 0.75rem;
+  font-size: 1.02rem;
+  color: var(--text);
+  word-break: break-all;
+}
+.logout-btn {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--surface) 92%, var(--gold) 8%);
+  color: var(--accent);
+  cursor: pointer;
+}
+.logout-btn:hover {
+  border-color: color-mix(in srgb, var(--gold) 45%, var(--border));
+  color: var(--accent-hover);
+}
 .toggle {
   display: flex;
   gap: 0.65rem;
@@ -39,7 +92,8 @@ const { requireHandwritingInStudy } = storeToRefs(settings)
 }
 .note {
   margin-top: 1rem;
-  font-size: 0.875rem;
+  font-size: 0.98rem;
   color: var(--text);
+  line-height: 1.5;
 }
 </style>

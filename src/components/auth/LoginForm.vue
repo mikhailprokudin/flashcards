@@ -59,7 +59,7 @@ defineProps<{
 }
 .error {
   color: var(--danger);
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin: 0 0 1rem;
 }
 </style>

@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, count, eq } from "drizzle-orm";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import type { AppDb } from "../db/client.js";
@@ -45,15 +45,19 @@ export const deckRoutes: FastifyPluginAsync<DeckOpts> = async (fastify, opts) =>
         id: decks.id,
         name: decks.name,
         createdAt: decks.createdAt,
+        cardCount: count(cards.id),
       })
       .from(decks)
+      .leftJoin(cards, eq(cards.deckId, decks.id))
       .where(eq(decks.userId, userId))
+      .groupBy(decks.id, decks.name, decks.createdAt)
       .orderBy(asc(decks.createdAt));
 
     return rows.map((d) => ({
       id: d.id,
       name: d.name,
       createdAt: d.createdAt.toISOString(),
+      cardCount: Number(d.cardCount),
     }));
   });
 

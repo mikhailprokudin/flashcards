@@ -122,7 +122,21 @@ onBeforeUnmount(() => {
   <div class="quiz-wrap">
     <p v-if="loadFailed" class="err">Не удалось загрузить данные написания.</p>
     <template v-else>
-      <button type="button" class="speak" @click="replayPronunciation">Прослушать произношение</button>
+      <button
+        type="button"
+        class="speak btn btn-icon"
+        title="Прослушать произношение"
+        aria-label="Прослушать произношение"
+        @click="replayPronunciation"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"
+          />
+        </svg>
+      </button>
       <div ref="root" class="hanzi-root" />
     </template>
   </div>
@@ -144,11 +158,6 @@ onBeforeUnmount(() => {
 }
 .speak {
   margin: 0 0 0.75rem;
-  padding: 0.35rem 0.75rem;
-  font: inherit;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  border-radius: 6px;
   background: var(--surface-2);
 }
 .speak:hover {

@@ -17,6 +17,9 @@ export const users = mysqlTable("users", {
     .autoincrement(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  requireHandwritingStudy: tinyint("require_handwriting_study", { unsigned: true })
+    .notNull()
+    .default(0),
   createdAt: datetime("created_at", { mode: "date", fsp: 3 })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP(3)`),

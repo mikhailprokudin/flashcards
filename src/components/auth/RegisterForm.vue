@@ -83,14 +83,14 @@ defineProps<{
 }
 .error {
   color: var(--danger);
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin: 0 0 1rem;
 }
 .error.inline {
   margin: 0.35rem 0 0;
 }
 .hint {
-  font-size: 0.8rem;
+  font-size: 0.92rem;
   color: var(--text);
   margin: 0.35rem 0 0;
 }

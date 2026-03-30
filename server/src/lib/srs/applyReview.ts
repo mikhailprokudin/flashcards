@@ -11,7 +11,7 @@ export type ProgressStatus = "not_started" | "learning" | "learned";
 
 export type SrsProgressState = {
   status: ProgressStatus;
-  /** 0 = no "know" yet; 1–10 in learning; 11 after 11th know (learned). */
+  /** 0 = no "know" yet; 1–10 while learning; 11 only when `status` is `learned` (after 11th know). */
   step: number;
   firstShownAt: Date | null;
 };

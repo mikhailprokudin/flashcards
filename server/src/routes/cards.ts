@@ -10,7 +10,7 @@ const createCardBody = z.object({
   hanzi: z.string().min(1).max(64),
   pinyin: z.string().min(1).max(255),
   meaning: z.string().min(1).max(1024),
-  example: z.string().min(1).max(2048),
+  example: z.string().max(2048).optional(),
   notes: z.string().max(8000).optional().nullable(),
 });
 
@@ -114,7 +114,7 @@ export const cardRoutes: FastifyPluginAsync<CardOpts> = async (fastify, opts) =>
           hanzi: parsed.data.hanzi,
           pinyin: parsed.data.pinyin,
           meaning: parsed.data.meaning,
-          example: parsed.data.example,
+          example: parsed.data.example ?? "",
           notes: parsed.data.notes ?? null,
         })
         .$returningId();
