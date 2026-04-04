@@ -2,8 +2,13 @@ import { and, asc, eq, inArray, isNotNull, isNull, lte, sql } from "drizzle-orm"
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import type { AppDb } from "../db/client.js";
-import { cardProgress, cards, decks } from "../db/schema.js";
+import { cardProgress, cards, decks, users } from "../db/schema.js";
 import { applyReview, type ProgressStatus } from "../lib/srs/applyReview.js";
+import {
+  effectiveStreakCurrent,
+  streakStateAfterReview,
+  utcCalendarDate,
+} from "../lib/studyStreak.js";
 import { getUserIdOr401 } from "../lib/requestUser.js";
 import { requireOwnedDeck } from "./decks.js";
 
@@ -313,11 +318,30 @@ export const studyRoutes: FastifyPluginAsync<StudyOpts> = async (fastify, opts) 
       const row = rows[0];
       const now = new Date();
       const canStudy = await canStudyNow(db, userId, now);
+
+      const streakRows = await db
+        .select({
+          studyStreakCurrent: users.studyStreakCurrent,
+          studyStreakLastDate: users.studyStreakLastDate,
+          studyStreakBest: users.studyStreakBest,
+        })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      const streak = streakRows[0];
+      const todayYmd = utcCalendarDate(now);
+      const streakCurrent = streak
+        ? effectiveStreakCurrent(streak, todayYmd)
+        : 0;
+      const streakBest = streak?.studyStreakBest ?? 0;
+
       return {
         neverReviewed: numAgg(row?.neverReviewed),
         learning: numAgg(row?.learning),
         learned: numAgg(row?.learned),
         canStudy,
+        streakCurrent,
+        streakBest,
       };
     },
   );
@@ -453,6 +477,29 @@ export const studyRoutes: FastifyPluginAsync<StudyOpts> = async (fastify, opts) 
             lastReviewAt: out.lastReviewAt,
             lastResult: out.lastResult,
           });
+        }
+
+        const streakRows = await tx
+          .select({
+            studyStreakCurrent: users.studyStreakCurrent,
+            studyStreakLastDate: users.studyStreakLastDate,
+            studyStreakBest: users.studyStreakBest,
+          })
+          .from(users)
+          .where(eq(users.id, userId))
+          .limit(1);
+        const uStreak = streakRows[0];
+        if (uStreak) {
+          const todayStr = utcCalendarDate(now);
+          const nextStreak = streakStateAfterReview(uStreak, todayStr);
+          await tx
+            .update(users)
+            .set({
+              studyStreakCurrent: nextStreak.studyStreakCurrent,
+              studyStreakLastDate: nextStreak.studyStreakLastDate,
+              studyStreakBest: nextStreak.studyStreakBest,
+            })
+            .where(eq(users.id, userId));
         }
 
         return out;

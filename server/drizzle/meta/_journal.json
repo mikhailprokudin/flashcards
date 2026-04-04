@@ -15,6 +15,13 @@
       "when": 1775000000000,
       "tag": "0001_user_require_handwriting",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1775100000000,
+      "tag": "0002_study_streak",
+      "breakpoints": true
     }
   ]
 }

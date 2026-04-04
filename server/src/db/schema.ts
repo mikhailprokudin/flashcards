@@ -1,7 +1,9 @@
 import {
   bigint,
+  date,
   datetime,
   index,
+  int,
   mysqlEnum,
   mysqlTable,
   primaryKey,
@@ -20,6 +22,9 @@ export const users = mysqlTable("users", {
   requireHandwritingStudy: tinyint("require_handwriting_study", { unsigned: true })
     .notNull()
     .default(0),
+  studyStreakCurrent: int("study_streak_current", { unsigned: true }).notNull().default(0),
+  studyStreakLastDate: date("study_streak_last_date", { mode: "string" }),
+  studyStreakBest: int("study_streak_best", { unsigned: true }).notNull().default(0),
   createdAt: datetime("created_at", { mode: "date", fsp: 3 })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP(3)`),
