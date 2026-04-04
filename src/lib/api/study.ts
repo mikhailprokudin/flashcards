@@ -22,6 +22,10 @@ export interface StudyStats {
   learned: number
   /** Есть ли сейчас карточки в очереди повторения (как у GET /study/queue). */
   canStudy: boolean
+  /** Текущая серия дней с повторением (0 после пропуска дня). */
+  streakCurrent: number
+  /** Максимальная серия за всё время. */
+  streakBest: number
 }
 
 export const studyApi = {

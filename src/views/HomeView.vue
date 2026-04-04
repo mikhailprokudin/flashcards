@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import StudyStreakSummary from '@/components/StudyStreakSummary.vue'
 import { studyApi } from '@/lib/api/study'
 import { useAuthStore } from '@/stores/auth'
 
@@ -15,6 +16,8 @@ const neverReviewed = ref(0)
 const learning = ref(0)
 const learned = ref(0)
 const canStudy = ref(false)
+const streakCurrent = ref(0)
+const streakBest = ref(0)
 
 async function loadStats() {
   const t = auth.token
@@ -27,6 +30,8 @@ async function loadStats() {
     learning.value = s.learning
     learned.value = s.learned
     canStudy.value = s.canStudy
+    streakCurrent.value = s.streakCurrent
+    streakBest.value = s.streakBest
   } catch (e) {
     statsError.value = e instanceof Error ? e.message : 'Не удалось загрузить статистику'
   } finally {
@@ -42,6 +47,8 @@ watch(
       learning.value = 0
       learned.value = 0
       canStudy.value = false
+      streakCurrent.value = 0
+      streakBest.value = 0
       statsError.value = null
       return
     }
@@ -76,6 +83,12 @@ watch(
         </p>
         <p v-else class="no-study">Сейчас нет карточек для повторения</p>
 
+        <StudyStreakSummary
+          v-if="!statsError"
+          :current="streakCurrent"
+          :best="streakBest"
+        />
+
         <ul v-if="!statsError" class="stats" aria-label="Статистика по словам">
           <li class="stat">
             <span class="badge badge-red" aria-hidden="true">{{ neverReviewed }}</span>
@@ -98,7 +111,8 @@ watch(
 <style scoped>
 .home-guest,
 .home-logged {
-  min-height: calc(100svh - 5.5rem);
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -107,11 +121,55 @@ watch(
   box-sizing: border-box;
   padding: 0.5rem 0;
 }
+@media (prefers-reduced-motion: no-preference) {
+  .home-guest > h1,
+  .home-guest > .lead,
+  .home-guest > .actions {
+    animation: home-piece 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .home-guest > h1 {
+    animation-delay: 0.04s;
+  }
+  .home-guest > .lead {
+    animation-delay: 0.12s;
+  }
+  .home-guest > .actions {
+    animation-delay: 0.2s;
+  }
+  .home-logged-inner > * {
+    animation: home-piece 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .home-logged-inner > *:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  .home-logged-inner > *:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  .home-logged-inner > *:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+  .home-logged-inner > *:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+  .home-logged-inner > *:nth-child(5) {
+    animation-delay: 0.25s;
+  }
+}
+@keyframes home-piece {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .home-logged-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
+  gap: clamp(0.65rem, 2.2dvh, 1.25rem);
   width: 100%;
   max-width: 22rem;
 }

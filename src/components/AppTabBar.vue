@@ -59,9 +59,35 @@ function isActive(tabName: (typeof tabs)[number]['name']) {
   justify-content: space-around;
   gap: 0.35rem;
   padding: 0.5rem 0.65rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 96%, var(--gold) 4%);
-  box-shadow: 0 -1px 0 0 color-mix(in srgb, var(--gold) 25%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--gold) 22%, var(--border));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface) 94%, var(--gold) 6%) 0%,
+    color-mix(in srgb, var(--surface-2) 88%, var(--gold-muted) 5%) 100%
+  );
+  box-shadow:
+    0 -1px 0 0 color-mix(in srgb, var(--gold) 22%, transparent),
+    0 -12px 32px color-mix(in srgb, var(--accent) 8%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tab-bar {
+    animation: tab-bar-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab-bar {
+    animation: none;
+  }
+}
+@keyframes tab-bar-rise {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 .tab {
   flex: 1;
@@ -71,19 +97,31 @@ function isActive(tabName: (typeof tabs)[number]['name']) {
   align-items: center;
   justify-content: center;
   padding: 0.45rem 0.35rem;
-  border-radius: 0.5rem;
+  border-radius: 0.65rem;
   text-decoration: none;
   color: var(--text);
   transition:
-    color 0.15s ease,
-    background 0.15s ease;
+    color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .tab:hover {
   color: var(--text-h);
-  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
 }
 .tab.active {
   color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tab:active {
+    transform: scale(0.96);
+  }
+  .tab.active {
+    transform: translateY(-1px);
+  }
 }
 .tab.active .icon {
   color: var(--accent);
@@ -95,6 +133,26 @@ function isActive(tabName: (typeof tabs)[number]['name']) {
   width: 1.85rem;
   height: 1.85rem;
   color: color-mix(in srgb, var(--text) 75%, var(--text-h) 25%);
+  transition:
+    color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tab.active .icon {
+    transform: scale(1.06);
+    animation: tab-icon-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+@keyframes tab-icon-pop {
+  0% {
+    transform: scale(0.92);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1.06);
+  }
 }
 .icon svg {
   width: 100%;

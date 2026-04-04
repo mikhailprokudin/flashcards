@@ -34,10 +34,11 @@
   /* Китайский флаг: поле Pantone 186 C ≈ #DE2910 */
   --text: #3d3835;
   --text-h: #0d0d0d;
-  --bg: #faf6f0;
+  --bg: #ffefe4;
+  --bg-deep: #ffd8c4;
   --surface: #fffefb;
-  --surface-2: #f3ede4;
-  --border: #e0d5c8;
+  --surface-2: #f8ebe0;
+  --border: #e8c9b0;
   --accent: #de2910;
   --accent-hover: #b8120c;
   --gold: #b8860b;
@@ -46,6 +47,9 @@
   --success: #166534;
   --canvas-bg: #faf6f0;
   --canvas-stroke: #14110e;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 0.2s;
+  --dur-med: 0.45s;
 
   --sans: Evolventa, system-ui, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
   --font-hanzi: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
@@ -61,10 +65,11 @@
   :root {
     --text: #b8b0a5;
     --text-h: #f7f2e8;
-    --bg: #0a0a0a;
-    --surface: #12100e;
-    --surface-2: #1c1916;
-    --border: #2e2923;
+    --bg: #140f0c;
+    --bg-deep: #0a0807;
+    --surface: #1a1512;
+    --surface-2: #241e1a;
+    --border: #3d332b;
     --accent: #e63b2e;
     --accent-hover: #ff5c4d;
     --gold: #d4af37;
@@ -80,8 +85,67 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   margin: 0;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-deep);
+  background-image:
+    radial-gradient(ellipse 130% 70% at 50% -15%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 58%),
+    radial-gradient(ellipse 85% 55% at 105% 25%, color-mix(in srgb, var(--gold) 28%, transparent), transparent 52%),
+    radial-gradient(ellipse 75% 45% at -5% 75%, color-mix(in srgb, var(--gold-muted) 18%, transparent), transparent 48%),
+    radial-gradient(ellipse 60% 40% at 80% 95%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 50%);
+  background-attachment: fixed;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-image:
+      radial-gradient(ellipse 120% 65% at 50% -10%, color-mix(in srgb, var(--accent) 35%, transparent), transparent 55%),
+      radial-gradient(ellipse 80% 50% at 100% 20%, color-mix(in srgb, var(--gold) 18%, transparent), transparent 50%),
+      radial-gradient(ellipse 70% 45% at 0% 80%, color-mix(in srgb, var(--gold-muted) 12%, transparent), transparent 45%);
+  }
+}
+
+#app {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #app::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(
+      circle at 30% 40%,
+      color-mix(in srgb, var(--gold) 8%, transparent) 0%,
+      transparent 42%
+    );
+    animation: app-bg-breathe 14s var(--ease-out-soft) infinite alternate;
+  }
+}
+
+@keyframes app-bg-breathe {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1.08);
+  }
 }
 
 h1,
@@ -104,9 +168,6 @@ h3 {
   font-size: 1.12rem;
 }
 
-#app {
-  min-height: 100svh;
-}
 
 a {
   color: var(--accent);
@@ -122,6 +183,18 @@ button,
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-h);
+  transition:
+    background var(--dur-fast) var(--ease-out-soft),
+    border-color var(--dur-fast) var(--ease-out-soft),
+    color var(--dur-fast) var(--ease-out-soft),
+    transform var(--dur-fast) var(--ease-out-soft),
+    box-shadow var(--dur-fast) var(--ease-out-soft);
+}
+@media (prefers-reduced-motion: no-preference) {
+  button:active:not(:disabled),
+  .btn:active {
+    transform: scale(0.98);
+  }
 }
 
 /* Квадратные кнопки с SVG (aria-label / title обязателен) */
