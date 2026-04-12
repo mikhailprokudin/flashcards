@@ -1,21 +1,54 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { RouterLink, RouterView } from 'vue-router'
 import AppTabBar from '@/components/AppTabBar.vue'
 import { useAuthStore } from '@/stores/auth'
+import router from '@/router'
 
 const auth = useAuthStore()
 const { user } = storeToRefs(auth)
+
+const SPLASH_MIN_MS = 2000
+
+const showSplash = ref(true)
+
+onMounted(async () => {
+  await Promise.all([
+    router.isReady(),
+    new Promise<void>((resolve) => {
+      setTimeout(resolve, SPLASH_MIN_MS)
+    }),
+  ])
+  showSplash.value = false
+})
 </script>
 
 <template>
   <div class="app-shell">
+    <Transition name="splash">
+      <div
+        v-if="showSplash"
+        class="splash"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        aria-label="Загрузка приложения"
+      >
+        <div class="splash-bg" aria-hidden="true" />
+        <div class="splash-inner">
+          <img class="splash-logo" src="/app-logo.png" alt="" width="192" height="192" />
+          <h1 class="splash-title">汉字卡</h1>
+          <p class="splash-tagline">карточки иероглифов</p>
+        </div>
+      </div>
+    </Transition>
     <header class="top-bar" aria-label="Шапка приложения">
       <div class="top-bar-bg" aria-hidden="true" />
       <div class="top-bar-pattern" aria-hidden="true" />
       <div class="top-bar-inner">
-        <RouterLink to="/" class="logo">
-          <span class="logo-mark" aria-hidden="true" />
+        <RouterLink to="/" class="logo" aria-label="汉字卡 — на главную">
+          <img class="logo-img" src="/app-logo.png" alt="" width="40" height="40" decoding="async" />
           <span class="logo-text">汉字卡</span>
         </RouterLink>
       </div>
@@ -125,29 +158,13 @@ const { user } = storeToRefs(auth)
     transform: translateY(-1px);
   }
 }
-.logo-mark {
-  width: 0.32rem;
-  height: 1.65rem;
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--gold), var(--accent));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 40%, transparent);
+.logo-img {
+  width: 2.05rem;
+  height: 2.05rem;
+  object-fit: contain;
   flex-shrink: 0;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .logo-mark {
-    animation: mark-shine 4.5s ease-in-out infinite;
-  }
-}
-@keyframes mark-shine {
-  0%,
-  100% {
-    filter: brightness(1);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 40%, transparent);
-  }
-  50% {
-    filter: brightness(1.12);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--gold) 45%, transparent);
-  }
+  border-radius: 0.35rem;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--border) 55%, transparent);
 }
 .logo-text {
   letter-spacing: 0.04em;
@@ -208,6 +225,81 @@ const { user } = storeToRefs(auth)
   .page-enter-from,
   .page-leave-to {
     transform: none;
+  }
+}
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+.splash-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-deep);
+  background-image:
+    radial-gradient(ellipse 130% 70% at 50% -15%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 58%),
+    radial-gradient(ellipse 85% 55% at 105% 25%, color-mix(in srgb, var(--gold) 28%, transparent), transparent 52%),
+    radial-gradient(ellipse 75% 45% at -5% 75%, color-mix(in srgb, var(--gold-muted) 18%, transparent), transparent 48%),
+    radial-gradient(ellipse 60% 40% at 80% 95%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 50%);
+  background-attachment: fixed;
+}
+@media (prefers-color-scheme: dark) {
+  .splash-bg {
+    background-image:
+      radial-gradient(ellipse 120% 65% at 50% -10%, color-mix(in srgb, var(--accent) 35%, transparent), transparent 55%),
+      radial-gradient(ellipse 80% 50% at 100% 20%, color-mix(in srgb, var(--gold) 18%, transparent), transparent 50%),
+      radial-gradient(ellipse 70% 45% at 0% 80%, color-mix(in srgb, var(--gold-muted) 12%, transparent), transparent 45%);
+  }
+}
+.splash-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.65rem;
+  max-width: 22rem;
+}
+.splash-logo {
+  width: min(42vw, 11.5rem);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 28px color-mix(in srgb, var(--accent) 22%, transparent));
+}
+.splash-title {
+  margin: 0;
+  font-family: var(--font-hanzi), var(--sans);
+  font-size: clamp(1.85rem, 6.5vw, 2.35rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-h);
+}
+.splash-tagline {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--text) 88%, var(--accent) 12%);
+}
+
+.splash-enter-active,
+.splash-leave-active {
+  transition: opacity 0.42s var(--ease-out-soft);
+}
+.splash-enter-from,
+.splash-leave-to {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash-enter-active,
+  .splash-leave-active {
+    transition-duration: 0.12s;
   }
 }
 </style>

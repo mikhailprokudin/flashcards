@@ -79,7 +79,7 @@ watch(
       <template v-else>
         <p v-if="statsError" class="error">{{ statsError }}</p>
         <p v-else-if="canStudy" class="study-row">
-          <RouterLink :to="{ name: 'study' }" class="btn primary">Повторять</RouterLink>
+          <RouterLink :to="{ name: 'study' }" class="btn primary btn-study-cta">Повторять</RouterLink>
         </p>
         <p v-else class="no-study">Сейчас нет карточек для повторения</p>
 
@@ -187,7 +187,9 @@ watch(
   justify-content: center;
 }
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.55rem 1.2rem;
   min-height: 2.75rem;
   border-radius: 0.5rem;
@@ -203,6 +205,14 @@ watch(
 }
 .study-row {
   margin: 0;
+  width: 100%;
+}
+.btn-study-cta {
+  width: 100%;
+  min-height: 3.35rem;
+  padding: 0.85rem 1.35rem;
+  font-size: 1.22rem;
+  border-radius: 0.65rem;
 }
 .no-study {
   margin: 0;

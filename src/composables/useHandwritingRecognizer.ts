@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { ZhkRecognizer } from '@zh-keyboard/recognizer'
+import type { ZhkRecognizer } from '@zh-keyboard/recognizer'
 
 const MODEL_URL =
   'https://cdn.jsdelivr.net/gh/dusionlike/zh-keyboard@main/packages/vue/public/models/handwrite/model.json'
@@ -20,7 +20,9 @@ export function useHandwritingRecognizer() {
     initLoading.value = true
     initError.value = null
 
-    recognizer = new ZhkRecognizer({
+    const { ZhkRecognizer: ZhkRecognizerCtor } = await import('@zh-keyboard/recognizer')
+
+    recognizer = new ZhkRecognizerCtor({
       modelPath: MODEL_URL,
       dictPath: DICT_URL,
       backend: 'cpu',

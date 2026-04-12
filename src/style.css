@@ -175,6 +175,9 @@ a {
 
 button,
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font: inherit;
   cursor: pointer;
   border-radius: 0.5rem;

@@ -7,24 +7,38 @@ import { speakChinese, cancelChineseSpeech } from '@/lib/speakZh'
 const props = withDefaults(
   defineProps<{
     char: string
+    /**
+     * Индекс символа в многошаговом почерке (StudyView). Если задан — в `complete` возвращается
+     * тот же индекс; родитель отбрасывает устаревшие колбэки после смены шага.
+     */
+    writingStepIndex?: number
     /** Целиком слово/фраза для озвучки; если несколько иероглифов — передавайте полный 汉字. */
     pronunciationText?: string
     /** Автоозвучка при старте квиза (для 2+ иероглифов обычно только у первого шага). */
     speakOnStart?: boolean
+    /** `false` — без подсказок по чертам (hanzi-writer). По умолчанию 3. */
+    showHintAfterMisses?: number | false
+    /**
+     * Контур эталона: при `true` во время квиза видна схема черт (подсказка).
+     * `false` — только пустое поле; эталонная черта появляется после верного написания (как в hanzi-writer quiz).
+     */
+    showOutline?: boolean
     width?: number
     height?: number
   }>(),
-  { width: 280, height: 280, speakOnStart: true },
+  { width: 280, height: 280, speakOnStart: true, showHintAfterMisses: 3, showOutline: true },
 )
 
 const emit = defineEmits<{
-  complete: [summary: { character: string; totalMistakes: number }]
+  complete: [summary: { character: string; totalMistakes: number; writingStepIndex?: number }]
   loadError: [message: string]
 }>()
 
 const root = ref<HTMLElement | null>(null)
 const loadFailed = ref(false)
 let writer: InstanceType<typeof HanziWriter> | null = null
+/** Сбрасывается при каждом setup — чтобы не обрабатывать onComplete от предыдущего квиза после смены символа. */
+let setupSeq = 0
 
 function destroy() {
   cancelChineseSpeech()
@@ -65,20 +79,22 @@ function writerColors() {
 }
 
 async function setup() {
+  const seq = ++setupSeq
   destroy()
   loadFailed.value = false
   const ch = props.char?.trim()
-  if (!ch || !root.value) return
+  const writingStepIndex = props.writingStepIndex
+  if (!ch) return
 
   await nextTick()
-  if (!root.value) return
+  if (seq !== setupSeq || !root.value) return
 
   const colors = writerColors()
   writer = HanziWriter.create(root.value, ch, {
     width: props.width,
     height: props.height,
     padding: 8,
-    showOutline: true,
+    showOutline: props.showOutline,
     showCharacter: false,
     charDataLoader,
     ...colors,
@@ -94,9 +110,15 @@ async function setup() {
   }
 
   await writer.quiz({
-    showHintAfterMisses: 3,
+    showHintAfterMisses: props.showHintAfterMisses,
     onComplete: (summary) => {
-      emit('complete', summary)
+      if (seq !== setupSeq) return
+      const payload: { character: string; totalMistakes: number; writingStepIndex?: number } = {
+        character: ch,
+        totalMistakes: summary.totalMistakes,
+      }
+      if (writingStepIndex !== undefined) payload.writingStepIndex = writingStepIndex
+      emit('complete', payload)
     },
   })
 }
@@ -105,9 +127,19 @@ onMounted(() => {
   setup()
 })
 
+// Только параметры, влияющие на HanziWriter; `speakOnStart` / `pronunciationText` не включаем —
+// при смене шага они меняются вместе с `char`, и лишний вызов `setup()` давал гонку (второй setup
+// отменял квиз до `onComplete`, родитель не получал событие и не переходил к следующему иероглифу).
 watch(
   () =>
-    [props.char, props.width, props.height, props.pronunciationText, props.speakOnStart] as const,
+    [
+      props.char,
+      props.width,
+      props.height,
+      props.showHintAfterMisses,
+      props.showOutline,
+      props.writingStepIndex,
+    ] as const,
   () => {
     setup()
   },

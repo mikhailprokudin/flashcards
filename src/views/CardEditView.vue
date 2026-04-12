@@ -355,8 +355,16 @@ onBeforeUnmount(() => {
       <textarea id="nt" v-model="notes" />
     </div>
 
-    <div class="row-actions edit-footer-btns">
-      <button type="button" class="btn primary btn-icon" aria-label="Сохранить" @click="save">
+    <div class="row-actions edit-footer-btns" :class="{ 'edit-footer-new': isNew }">
+      <button
+        v-if="isNew"
+        type="button"
+        class="btn primary edit-save-full"
+        @click="save"
+      >
+        Сохранить
+      </button>
+      <button v-else type="button" class="btn primary btn-icon" aria-label="Сохранить" @click="save">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M20 6L9 17l-5-5" />
         </svg>
@@ -516,6 +524,16 @@ onBeforeUnmount(() => {
 }
 .edit-footer-btns {
   align-items: center;
+}
+.edit-footer-new {
+  flex-direction: column;
+  align-items: stretch;
+}
+.edit-save-full {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .hanzi-row {
   display: flex;

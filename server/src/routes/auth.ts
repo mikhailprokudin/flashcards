@@ -10,9 +10,15 @@ const credentialsBody = z.object({
   password: z.string().min(8).max(256),
 });
 
-const patchMeBody = z.object({
-  requireHandwritingInStudy: z.boolean(),
-});
+const patchMeBody = z
+  .object({
+    requireHandwritingInStudy: z.boolean().optional(),
+    studyTripleMode: z.boolean().optional(),
+  })
+  .refine(
+    (b) => b.requireHandwritingInStudy !== undefined || b.studyTripleMode !== undefined,
+    { message: "At least one preference field is required" },
+  );
 
 type AuthOpts = { db: AppDb };
 
@@ -20,11 +26,13 @@ function userPayload(row: {
   id: number;
   email: string;
   requireHandwritingStudy: number;
+  studyTripleMode: number;
 }) {
   return {
     id: row.id,
     email: row.email,
     requireHandwritingInStudy: row.requireHandwritingStudy === 1,
+    studyTripleMode: row.studyTripleMode === 1,
   };
 }
 
@@ -60,7 +68,12 @@ export const authRoutes: FastifyPluginAsync<AuthOpts> = async (fastify, opts) =>
 
     return reply.status(201).send({
       token,
-      user: { id: userId, email, requireHandwritingInStudy: false },
+      user: {
+        id: userId,
+        email,
+        requireHandwritingInStudy: false,
+        studyTripleMode: true,
+      },
     });
   });
 
@@ -77,6 +90,7 @@ export const authRoutes: FastifyPluginAsync<AuthOpts> = async (fastify, opts) =>
         email: users.email,
         passwordHash: users.passwordHash,
         requireHandwritingStudy: users.requireHandwritingStudy,
+        studyTripleMode: users.studyTripleMode,
       })
       .from(users)
       .where(eq(users.email, email))
@@ -110,6 +124,7 @@ export const authRoutes: FastifyPluginAsync<AuthOpts> = async (fastify, opts) =>
           id: users.id,
           email: users.email,
           requireHandwritingStudy: users.requireHandwritingStudy,
+          studyTripleMode: users.studyTripleMode,
         })
         .from(users)
         .where(eq(users.id, id))
@@ -139,18 +154,22 @@ export const authRoutes: FastifyPluginAsync<AuthOpts> = async (fastify, opts) =>
         return reply.status(400).send({ error: "Invalid body", details: parsed.error.flatten() });
       }
 
-      await db
-        .update(users)
-        .set({
-          requireHandwritingStudy: parsed.data.requireHandwritingInStudy ? 1 : 0,
-        })
-        .where(eq(users.id, id));
+      const setPatch: { requireHandwritingStudy?: number; studyTripleMode?: number } = {};
+      if (parsed.data.requireHandwritingInStudy !== undefined) {
+        setPatch.requireHandwritingStudy = parsed.data.requireHandwritingInStudy ? 1 : 0;
+      }
+      if (parsed.data.studyTripleMode !== undefined) {
+        setPatch.studyTripleMode = parsed.data.studyTripleMode ? 1 : 0;
+      }
+
+      await db.update(users).set(setPatch).where(eq(users.id, id));
 
       const rows = await db
         .select({
           id: users.id,
           email: users.email,
           requireHandwritingStudy: users.requireHandwritingStudy,
+          studyTripleMode: users.studyTripleMode,
         })
         .from(users)
         .where(eq(users.id, id))

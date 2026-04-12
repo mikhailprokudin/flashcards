@@ -32,7 +32,10 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const { token, headers: initHeaders, ...rest } = init
   const headers = new Headers(initHeaders)
-  if (!headers.has('Content-Type') && rest.method && rest.method !== 'GET' && rest.method !== 'HEAD') {
+  // Fastify rejects empty bodies when Content-Type is application/json (FST_ERR_CTP_EMPTY_JSON_BODY).
+  const requestBody = rest.body
+  const hasJsonBody = typeof requestBody === 'string' && requestBody.length > 0
+  if (!headers.has('Content-Type') && hasJsonBody) {
     headers.set('Content-Type', 'application/json')
   }
   if (token) {

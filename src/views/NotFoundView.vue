@@ -21,7 +21,9 @@ import { RouterLink } from 'vue-router'
   color: var(--text-h);
 }
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.55rem 1.2rem;
   border-radius: 0.5rem;
   text-decoration: none;

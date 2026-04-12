@@ -58,15 +58,25 @@ export const useAuthStore = defineStore('auth', () => {
     setSession(res.token, res.user)
   }
 
-  async function setRequireHandwritingInStudy(value: boolean) {
+  type PreferencePatch = Partial<Pick<AuthUser, 'requireHandwritingInStudy' | 'studyTripleMode'>>
+
+  async function patchPreferences(body: PreferencePatch) {
     const t = token.value
     if (!t || !user.value) return
     preferenceSaving.value = true
     try {
-      user.value = await authApi.patchMe(t, { requireHandwritingInStudy: value })
+      user.value = await authApi.patchMe(t, body)
     } finally {
       preferenceSaving.value = false
     }
+  }
+
+  async function setRequireHandwritingInStudy(value: boolean) {
+    await patchPreferences({ requireHandwritingInStudy: value })
+  }
+
+  async function setStudyTripleMode(value: boolean) {
+    await patchPreferences({ studyTripleMode: value })
   }
 
   function logout() {
@@ -84,6 +94,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     setRequireHandwritingInStudy,
+    setStudyTripleMode,
     logout,
   }
 })

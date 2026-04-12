@@ -22,6 +22,7 @@ export const users = mysqlTable("users", {
   requireHandwritingStudy: tinyint("require_handwriting_study", { unsigned: true })
     .notNull()
     .default(0),
+  studyTripleMode: tinyint("study_triple_mode", { unsigned: true }).notNull().default(1),
   studyStreakCurrent: int("study_streak_current", { unsigned: true }).notNull().default(0),
   studyStreakLastDate: date("study_streak_last_date", { mode: "string" }),
   studyStreakBest: int("study_streak_best", { unsigned: true }).notNull().default(0),

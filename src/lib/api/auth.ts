@@ -6,6 +6,7 @@ export interface AuthUser {
   id: number
   email: string
   requireHandwritingInStudy: boolean
+  studyTripleMode: boolean
 }
 
 export interface AuthResponse {
@@ -34,7 +35,7 @@ export const authApi = {
 
   patchMe(
     token: string,
-    body: { requireHandwritingInStudy: boolean },
+    body: Partial<Pick<AuthUser, 'requireHandwritingInStudy' | 'studyTripleMode'>>,
   ): Promise<AuthUser> {
     return apiRequest<AuthUser>('/auth/me', {
       method: 'PATCH',

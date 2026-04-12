@@ -9,9 +9,14 @@ const auth = useAuthStore()
 const decks = useDecksStore()
 const { user, preferenceSaving } = storeToRefs(auth)
 
-function onToggle(e: Event) {
+function onHandwritingToggle(e: Event) {
   const el = e.target as HTMLInputElement
   void auth.setRequireHandwritingInStudy(el.checked)
+}
+
+function onTripleToggle(e: Event) {
+  const el = e.target as HTMLInputElement
+  void auth.setStudyTripleMode(el.checked)
 }
 
 function logout() {
@@ -38,15 +43,32 @@ function logout() {
     <label class="toggle">
       <input
         type="checkbox"
-        :checked="user?.requireHandwritingInStudy ?? false"
+        :checked="user?.studyTripleMode ?? true"
         :disabled="preferenceSaving || !user"
-        @change="onToggle"
+        @change="onTripleToggle"
+      />
+      <span>Тройной квиз при повторении (смысл → 汉字 → почерк, в случайном порядке)</span>
+    </label>
+    <p class="note">
+      Для каждой карточки в сессии показываются три шага: русский перевод, только иероглифы, затем написание по
+      чертам без подсказок. Шаги разных слов перемешиваются. Один ответ SRS («знаю / не знаю») сохраняется после
+      всех трёх шагов по карточке. Когда этот режим включён, обычный переворот карточки в повторении не
+      используется (отдельная настройка про почерк ниже на него не влияет).
+    </p>
+
+    <label class="toggle">
+      <input
+        type="checkbox"
+        :checked="user?.requireHandwritingInStudy ?? false"
+        :disabled="preferenceSaving || !user || (user?.studyTripleMode ?? true)"
+        @change="onHandwritingToggle"
       />
       <span>Требовать рукописный ввод (笔顺) при повторении</span>
     </label>
     <p class="note">
       После переворота карточки нужно правильно написать каждый иероглиф слова по чертам. Данные черт подгружаются
-      из сети (CDN), если локальных файлов нет. Параметр сохраняется в вашем профиле на сервере.
+      из сети (CDN), если локальных файлов нет. Параметр сохраняется в вашем профиле на сервере. Недоступно при
+      включённом тройном квизе.
     </p>
   </div>
 </template>
@@ -78,6 +100,9 @@ function logout() {
 .logout-btn:hover {
   border-color: color-mix(in srgb, var(--gold) 45%, var(--border));
   color: var(--accent-hover);
+}
+.toggle + .toggle {
+  margin-top: 1.25rem;
 }
 .toggle {
   display: flex;

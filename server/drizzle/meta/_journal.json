@@ -22,6 +22,20 @@
       "when": 1775100000000,
       "tag": "0002_study_streak",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1775200000000,
+      "tag": "0003_study_triple_mode",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1775300000000,
+      "tag": "0004_study_triple_mode_default_on",
+      "breakpoints": true
     }
   ]
 }
